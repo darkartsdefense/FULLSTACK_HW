@@ -89,8 +89,6 @@ BEGIN
 END
 GO
 
---6.	Create a stored procedure “sp_product_order_city_[your_last_name]” that accept product name as an input and top 5 cities that ordered most that product combined with the total quantity of that product ordered from that city as output.
-
 --7.	Lock tables Region, Territories, EmployeeTerritories and Employees. Create a stored procedure “sp_move_employees_[your_last_name]” that automatically find all employees in territory “Tory”; if more than 0 found, insert a new territory “Stevens Point” of region “North” to the database, and then move those employees to “Stevens Point”.
 CREATE PROCEDURE sp_move_employees_gu
 AS
@@ -120,22 +118,71 @@ END
 ROLLBACK TRAN
 GO
 
+--9.	Create 2 new tables “people_your_last_name” “city_your_last_name”. City table has two records: {Id:1, City: Seattle}, {Id:2, City: Green Bay}. People has three records: {id:1, Name: Aaron Rodgers, City: 2}, {id:2, Name: Russell Wilson, City:1}, {Id: 3, Name: Jody Nelson, City:2}. Remove city of Seattle. 
+--If there was anyone from Seattle, put them into a new city “Madison”. Create a view “Packers_your_name” lists all people from Green Bay. If any error occurred, no changes should be made to DB. (after test) Drop both tables and view.
+CREATE TABLE people_your_last_gu(
+	Id INT,
+	Name varchar(255), 
+	City INT
+)
+CREATE TABLE city_your_last_gu(
+	Id INT, 
+	City varchar(255)
+)
+GO
 
+INSERT INTO city_your_last_gu
+VALUES 
+	(1, 'Seattle'),
+	(2, 'Green Bay');
+INSERT INTO people_your_last_gu
+VALUES 
+	(1, 'Aaron Rodgers', 2),
+	(2, 'Russell Wilson', 1),
+	(3, 'Jody Nelson', 2);
+DELETE FROM city_your_last_gu 
+WHERE Id = 1
+INSERT INTO city_your_last_gu 
+VALUES (1, 'Madison')
+GO
 
+CREATE VIEW Packers_your_hang_gu AS
+SELECT b.Id, b.Name, a.City 
+FROM city_your_last_gu a JOIN people_your_last_gu b ON a.Id = b.City
+WHERE a.City = 'Green Bay'
+GO
 
+DROP VIEW Packers_your_hang_gu
 
+DROP TABLE people_your_last_gu
 
---practice
---DELETE FROM Region
---WHERE RegionID = 5
+DROP TABLE city_your_last_gu
+GO
+--10.	 Create a stored procedure “sp_birthday_employees_[you_last_name]” that creates a new table “birthday_employees_your_last_name” and fill it with all employees that have a birthday on Feb. 
+--(Make a screen shot) drop the table. Employee table should not be affected.
+CREATE PROCEDURE sp_birthday_employees_gu
+AS
+	CREATE TABLE birthday_employees_your_gu(
+		EmpId INT,
+		LastName varchar(255),
+		FirstName varchar(255),
+		BirthMonth INT
+	)
+	SELECT a.EmployeeID, a.LastName, a.FirstName, datepart(mm, a.BirthDate) AS BirthMonth INTO birthday_employees_your_gu
+	FROM Employees a
+	WHERE datepart(mm, a.BirthDate) = 2
 
---DELETE FROM Employees
---WHERE EmployeeID = 10
+EXEC sp_birthday_employees_gu
+DROP TABLE birthday_employees_your_gu
+GO
 
---DELETE FROM Territories 
---WHERE TerritoryID = 99000
+--12.	How do you make sure two tables have the same data?
+--SELECT * FROM TABLE1
+--EXCEPT 
+--SELECT * FROM TABLE2
 
---DELETE FROM Region
---VALUES (5, 'Middle Earth')
+--SELECT * FROM TABLE2
+--EXCEPT 
+--SELECT * FROM TABLE1
 
---dbcc checkident(Employees,reseed,9)
+--IF THEY ALL RETURN NO RESULTS, THEN THE TWO TABLES ARE THE SAME
